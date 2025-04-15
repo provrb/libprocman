@@ -1,0 +1,55 @@
+<div align="center"> <h1>libprocman</h1> <p><em>Your toolkit for Windows process, token manipulation, and system-level operations.</em></p> <img alt="last-commit" src="https://img.shields.io/github/last-commit/provrb/libprocman?style=flat&logo=git&logoColor=white&color=0080ff"> <img alt="repo-top-language" src="https://img.shields.io/github/languages/top/provrb/libprocman?style=flat&color=0080ff"> <img alt="repo-language-count" src="https://img.shields.io/github/languages/count/provrb/libprocman?style=flat&color=0080ff"> </div>
+
+A C++ library that grants access to advanced Windows internals, process management, and security token manipulation. Perfect for security research, automation, and low-level Windows programming.
+
+## Table of Contents
+- [Features](#features)
+- [Installation](#installation)
+- [Usage](#usage)
+- [Contributing](#contributing)
+- [License](#license)
+- [Legal Notice](#legal-notice)
+- [Contact](#contact)
+
+## Features
+- ⚙️ **Process Management**: Retrieve process IDs, manage processes, and impersonate different user contexts.
+- 🔐 **Token Manipulation**: Duplicate and elevate process tokens, impersonate SYSTEM or TrustedInstaller.
+- ⚡️ **Native API Access**: Interact directly with low-level NT system calls.
+- 💻 **Virtualization Detection**: Check if the code is running in a virtual machine.
+- 💥 **Trigger BSOD**: Cause a Blue Screen of Death
+- 🔑 **Windows Registry Access**: Create and modify registry keys.
+- 🔒 **Security Contexts**: Query and change process security contexts.
+- 🔄 **Dynamic Function Calls**: Dynamically call functions from loaded DLLs.
+- 🖥️ **Start Windows Services**: Start and manage Windows services programmatically.
+- 🗂️ **Add Processes to Startup**: Automatically add processes to system startup.
+
+## Installation
+1. Go to the repositorys releases [page](https://github.com/provrb/libprocman/releases)
+2. Choose your version; preferbly the latest release.
+
+Depending on your use case, you can choose to pick from different file formats: 
+
+1. **.CPP and .HPP file**: simply drag the files into your include directories and include the .hpp file
+2. **.lib or .dll**: make sure to link the file to expose the functions.
+
+## Usage
+1. Include the procman.hpp and procman.cpp files in your project.
+2. Create an instance of the ProcessManager class
+3. Use the features provided by the class. Feel free to add your own functions!
+
+## Contributing
+Contributions are welcome! Feel free to open issues or submit pull requests to enhance features or fix bugs.
+
+When creating a pull request, there a couple things to keep in mind:
+1. **Ensure you follow the codebase style** - Doesn't have to be spot on, but make sure it aligns with the current code style. It would be ugly to everyone if there were several different naming conventions being used.
+2. **Create a test case** - When adding or refactoring a feature, ensure you test that function in the tests.cpp file. You can do this by simply calling the function and then telling the Tests class the expected result. Any features that do not pass a test will not be merged.
+3. **Be clear and concise** - In your pull request, ensure your commits are either squashed or neatly created with clear and concise messages. Your pull request should explain thoroughly what was changed. No one should have to scratch their head reading your pull request.
+
+## License
+This project is licensed under the MIT License. See the [LICENSE](./LICENSE.md) file for details.
+
+## Legal Notice
+This software is intended for educational purposes only. By using this library, you acknowledge that you fully understand and accept the risks associated with manipulating system processes, tokens, and security contexts. The author and contributors assume no responsibility for any damage, loss of data, or system instability that may result from the use of this library. Use at your own risk. Unauthorized use or misuse of this library for malicious purposes may violate local laws and regulations.
+
+## Contact
+For inquiries or feature requests, open an issue on GitHub.
