@@ -1,0 +1,26 @@
+name: Windows C++ Tests
+
+on: [push]
+
+jobs:
+  build-and-test:
+    runs-on: windows-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up MinGW
+      run: |
+        choco install mingw -y
+        echo "C:\ProgramData\chocolatey\lib\mingw\tools\install\mingw64\bin" >> $GITHUB_PATH
+
+    - name: Build with make
+      run: |
+        cd build
+        make
+
+    - name: Run tests
+      run: |
+        cd build
+        ./libprocman.exe
