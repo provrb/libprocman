@@ -10,12 +10,15 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
 
-    - name: Set up MinGW
+    - name: Install dependencies
+      shell: pwsh
       run: |
-        choco install mingw -y
-        echo "C:\ProgramData\chocolatey\lib\mingw\tools\install\mingw64\bin" >> $GITHUB_PATH
+        choco install cmake mingw -y
+        Add-Content $env:GITHUB_PATH "C:\Program Files\CMake\bin"
+        Add-Content $env:GITHUB_PATH "C:\ProgramData\chocolatey\lib\mingw\tools\install\mingw64\bin"
 
-    - name: Build with make
+    - name: Build with Make
+      shell: pwsh
       run: |
         cd build
         make
