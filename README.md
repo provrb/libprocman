@@ -51,13 +51,7 @@ Depending on your use case, you can choose to pick from different file formats:
 3. Use the features provided by the class. Feel free to add your own functions!
 
 ## Contributing
-Contributions are welcome! Feel free to open issues or submit pull requests to enhance features or fix bugs.
-
-When creating a pull request, there a couple things to keep in mind:
-1. **Ensure you follow the codebase style** - Doesn't have to be spot on, but make sure it aligns with the current code style. It would be ugly to everyone if there were several different naming conventions being used.
-2. **Create a test case** - When adding or refactoring a feature, ensure you test that function in the tests.cpp file. You can do this by simply calling the function and then telling the Tests class the expected result. Any features that do not pass a test will not be merged.
-3. **Be clear and concise** - In your pull request, ensure your commits are either squashed or neatly created with clear and concise messages. Your pull request should explain thoroughly what was changed. No one should have to scratch their head reading your pull request.
-
+Contributions are welcome! View the [contributing guidlines here!](./CONTRIBUTING.md)
 ## License
 This project is licensed under the MIT License. See the [LICENSE](./LICENSE.md) file for details.
 
