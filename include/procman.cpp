@@ -232,6 +232,10 @@ namespace {
     using _GetSystemFirmwareTable = UINT(WINAPI*)( DWORD, DWORD, PVOID, DWORD );
 }
 
+/*
+    Helper function to convert a string
+    to all lowercase. Yes this is extremely inefficient.
+*/
 std::string _lower(std::string inp) {
     std::string out = "";
     for ( auto& c : inp )
@@ -245,6 +249,10 @@ BOOL _sub(std::string libPath, std::string s2) {
     return libPath.find(s2) != std::string::npos;
 }
 
+/*
+    Helper function to convert a PWSTR string
+    to an std::string.
+*/
 std::string PWSTRToString(PWSTR inp) {
     std::wstring wstr(inp);
     std::string str(wstr.begin(), wstr.end());
@@ -355,7 +363,7 @@ ProcessManager::ProcessManager() {
     this->LoadAllNatives();
 }
 
-unsigned int ProcessManager::GetSSN(HMODULE lib, std::string functionName) {
+int ProcessManager::GetSSN(HMODULE lib, std::string functionName) {
     FARPROC address = GetFunctionAddressInternal(NTDLL, functionName);
     if ( !address )
         return -1;
@@ -366,7 +374,7 @@ unsigned int ProcessManager::GetSSN(HMODULE lib, std::string functionName) {
         if ( functionBytes[offset] == 0xB8 ) // next byte is syscall number
             return *( int* ) ( functionBytes + offset + 1 );
     }
-    return 0;
+    return -1;
 }
 
 template <typename type>
