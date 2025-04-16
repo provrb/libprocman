@@ -19,4 +19,4 @@ jobs:
     - name: Run the executable
       run: |
         cd build
-        ./licprocman.exe
+        ./libprocman.exe
