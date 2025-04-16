@@ -1,12 +1,20 @@
-#include "procman.hpp"
+#ifndef _WIN32
+#   error "This is a Windows library. This cannot be compiled for other systems."
+#endif
 
-#include <array>
-#include <random>
-#include <iostream>
-#include <Windows.h>
+#include "procman.hpp" // ProcessManager
 #include <TlHelp32.h>
 
+/* Function pointers to commonly used Nt API functions */
 extern "C" {
+    /*
+        Obtain a function pointer to NtOpenProcess
+        from ntdll.dll using dynamical loading. 
+        This function can be treated as a call
+        to NtOpenProcess.
+
+        https://ntdoc.m417z.com/ntopenprocess
+    */
     NTSTATUS SysNtOpenProcess(
         PHANDLE ProcessHandle,
         ACCESS_MASK DesiredAccess,
@@ -19,12 +27,28 @@ extern "C" {
         return pFunc(ProcessHandle, DesiredAccess, ObjectAttributes, ClientId);
     }
 
+    /*
+        Obtain a function pointer to NtClose
+        from ntdll.dll using dynamical loading. 
+        This function can be treated as a call
+        to NtClose
+
+        https://ntdoc.m417z.com/ntclose
+    */
     NTSTATUS SysNtClose(HANDLE handle) {
         static auto pFunc = reinterpret_cast< NTSTATUS(NTAPI*)( HANDLE ) >(
             GetProcAddress(GetModuleHandleW(L"ntdll"), "NtClose") );
         return pFunc(handle);
     }
 
+    /*
+        Obtain a function pointer to NtDuplicateToken
+        from ntdll.dll using dynamical loading. 
+        This function can be treated as a call
+        to NtDuplicateToken
+
+        https://ntdoc.m417z.com/NtDuplicateToken
+    */
     NTSTATUS SysNtDuplicateToken(
         HANDLE ExistingTokenHandle,
         ACCESS_MASK DesiredAccess,
@@ -39,6 +63,14 @@ extern "C" {
         return pFunc(ExistingTokenHandle, DesiredAccess, ObjectAttributes, EffectiveOnly, Type, NewTokenHandle);
     }
 
+    /*
+        Obtain a function pointer to NtOpenProcessTokenEx
+        from ntdll.dll using dynamical loading. 
+        This function can be treated as a call
+        to NtOpenProcessTokenEx
+
+        https://ntdoc.m417z.com/NtOpenProcessTokenEx
+    */
     NTSTATUS SysNtOpenProcessTokenEx(
         HANDLE processHandle,
         ACCESS_MASK desiredAccess,
@@ -51,6 +83,14 @@ extern "C" {
         return pFunc(processHandle, desiredAccess, handleAttributes, tokenHandle);
     }
 
+    /*
+        Obtain a function pointer to NtRaiseHardError
+        from ntdll.dll using dynamical loading. 
+        This function can be treated as a call
+        to NtRaiseHardError
+
+        https://ntdoc.m417z.com/NtRaiseHardError
+    */
     NTSTATUS SysNtRaiseHardError(
         NTSTATUS ErrorStatus,
         ULONG NumberOfParameters,
@@ -65,12 +105,28 @@ extern "C" {
         return pFunc(ErrorStatus, NumberOfParameters, UnicodeStringParameterMask, Parameters, ValidResponseOptions, Response);
     }
 
+    /*
+        Obtain a function pointer to NtRevertContainerImpersonation
+        from ntdll.dll using dynamical loading. 
+        This function can be treated as a call
+        to NtRevertContainerImpersonation
+
+        https://ntdoc.m417z.com/NtRevertContainerImpersonation
+    */
     NTSTATUS SysNtRevertContainerImpersonation() {
         static auto pFunc = reinterpret_cast< NTSTATUS(NTAPI*)( ) >(
             GetProcAddress(GetModuleHandleW(L"ntdll"), "NtRevertContainerImpersonation") );
         return pFunc();
     }
 
+    /*
+        Obtain a function pointer to NtCreateKey
+        from ntdll.dll using dynamical loading. 
+        This function can be treated as a call
+        to NtCreateKey
+
+        https://ntdoc.m417z.com/NtCreateKey
+    */
     NTSTATUS SysNtCreateKey(
         PHANDLE KeyHandle,
         ACCESS_MASK DesiredAccess,
@@ -86,6 +142,14 @@ extern "C" {
         return pFunc(KeyHandle, DesiredAccess, ObjectAttributes, TitleIndex, Class, CreateOptions, Disposition);
     }
 
+    /*
+        Obtain a function pointer to NtSetValueKey
+        from ntdll.dll using dynamical loading. 
+        This function can be treated as a call
+        to NtSetValueKey
+
+        https://ntdoc.m417z.com/NtSetValueKey
+    */
     NTSTATUS SysNtSetValueKey(
         HANDLE KeyHandle,
         PUNICODE_STRING ValueName,
@@ -100,18 +164,42 @@ extern "C" {
         return pFunc(KeyHandle, ValueName, TitleIndex, Type, Data, DataSize);
     }
 
+    /*
+        Obtain a function pointer to NtDelayExecution
+        from ntdll.dll using dynamical loading. 
+        This function can be treated as a call
+        to NtDelayExecution
+
+        https://ntdoc.m417z.com/NtDelayExecution
+    */
     NTSTATUS SysNtDelayExecution(BOOLEAN Alertable, PLARGE_INTEGER DelayInterval) {
         static auto pFunc = reinterpret_cast< NTSTATUS(NTAPI*)( BOOLEAN, PLARGE_INTEGER ) >(
             GetProcAddress(GetModuleHandleW(L"ntdll"), "NtDelayExecution") );
         return pFunc(Alertable, DelayInterval);
     }
 
+    /*
+        Obtain a function pointer to NtShutdownSystem
+        from ntdll.dll using dynamical loading. 
+        This function can be treated as a call
+        to NtShutdownSystem
+
+        https://ntdoc.m417z.com/NtShutdownSystem
+    */
     NTSTATUS SysNtShutdownSystem(SHUTDOWN_ACTION action) {
         static auto pFunc = reinterpret_cast< NTSTATUS(NTAPI*)( SHUTDOWN_ACTION ) >(
             GetProcAddress(GetModuleHandleW(L"ntdll"), "NtShutdownSystem") );
         return pFunc(action);
     }
 
+    /*
+        Get  function pointer to RtlGetCurrentPeb from
+        ntdll.dll. This is used to retrieve the current process environment block.
+        This isi how we get handles to loaded modules without making
+        suspicous Windows API calls.
+
+        https://ntdoc.m417z.com/rtlgetcurrentpeb
+    */
     PPEB GetPebAddress() {
         static auto pFunc = reinterpret_cast< PPEB(NTAPI*) ( VOID ) >(
             GetProcAddress(GetModuleHandleW(L"ntdll"), "RtlGetCurrentPeb") );
@@ -122,25 +210,25 @@ extern "C" {
 // Function pointer types
 namespace {
     // Commonly used function signatures
-    typedef NTSTATUS(WINAPI* _NtQueryInfo)( HANDLE, PROCESSINFOCLASS, PVOID, ULONG, PULONG );
-    typedef NTSTATUS(WINAPI* _NtOpenProcessToken)( HANDLE, ACCESS_MASK, PHANDLE );
-    typedef NTSTATUS(WINAPI* _NtDuplicateToken)( HANDLE, ACCESS_MASK, POBJECT_ATTRIBUTES, BOOLEAN, TOKEN_TYPE, PHANDLE );
-    typedef BOOL(WINAPI* _FreeDLL)( HANDLE );
-    typedef BOOL(WINAPI* _ImpersonateLoggedOnUser)( HANDLE );
-    typedef HANDLE(WINAPI* _CreateToolhelp32Snapshot)( DWORD, DWORD );
-    typedef SC_HANDLE(WINAPI* _OpenServiceA)( SC_HANDLE, LPCSTR, DWORD );
-    typedef SC_HANDLE(WINAPI* _OpenSCManagerW)( LPCWSTR, LPCWSTR, DWORD );
-    typedef BOOL(WINAPI* _QueryServiceStatusEx)( SC_HANDLE, SC_STATUS_TYPE, LPBYTE, DWORD, LPDWORD );
-    typedef BOOL(WINAPI* _StartService)( SC_HANDLE, DWORD, LPCWSTR );
-    typedef BOOL(WINAPI* _CreateProcessWithTokenW)( HANDLE, DWORD, LPCWSTR, LPWSTR, DWORD, LPVOID, LPCWSTR, LPSTARTUPINFOW, LPPROCESS_INFORMATION );
-    typedef BOOL(WINAPI* _Process32FirstW)( HANDLE, LPPROCESSENTRY32W );
-    typedef BOOL(WINAPI* _Process32NextW)( HANDLE, LPPROCESSENTRY32W );
-    typedef HMODULE(WINAPI* _LoadLibrary)( LPCSTR );
-    typedef BOOL(WINAPI* _SetThreadToken)( PHANDLE, HANDLE );
-    typedef BOOL(WINAPI* _GetComputerNameA)( LPSTR, LPDWORD );
-    typedef NTSTATUS(WINAPI* _RtlAdjustPrivilege)( ULONG, BOOLEAN, BOOLEAN, PBOOLEAN );
-    typedef NTSTATUS(WINAPI* _NtRaiseHardError)( NTSTATUS, ULONG, ULONG, PULONG_PTR, ULONG, PULONG );
-    typedef UINT(WINAPI* _GetSystemFirmwareTable)( DWORD, DWORD, PVOID, DWORD );
+    using _NtQueryInfo = NTSTATUS(WINAPI*)( HANDLE, PROCESSINFOCLASS, PVOID, ULONG, PULONG );
+    using _NtOpenProcessToken = NTSTATUS(WINAPI*)( HANDLE, ACCESS_MASK, PHANDLE );
+    using _NtDuplicateToken = NTSTATUS(WINAPI*)( HANDLE, ACCESS_MASK, POBJECT_ATTRIBUTES, BOOLEAN, TOKEN_TYPE, PHANDLE );
+    using _FreeDLL = BOOL(WINAPI*)( HANDLE );
+    using _ImpersonateLoggedOnUser = BOOL(WINAPI*)( HANDLE );
+    using _CreateToolhelp32Snapshot = HANDLE(WINAPI*)( DWORD, DWORD );
+    using _OpenServiceA = SC_HANDLE(WINAPI*)( SC_HANDLE, LPCSTR, DWORD );
+    using _OpenSCManagerW = SC_HANDLE(WINAPI*)( LPCWSTR, LPCWSTR, DWORD );
+    using _QueryServiceStatusEx = BOOL(WINAPI*)( SC_HANDLE, SC_STATUS_TYPE, LPBYTE, DWORD, LPDWORD );
+    using _StartService = BOOL(WINAPI*)( SC_HANDLE, DWORD, LPCWSTR );
+    using _CreateProcessWithTokenW = BOOL(WINAPI*)( HANDLE, DWORD, LPCWSTR, LPWSTR, DWORD, LPVOID, LPCWSTR, LPSTARTUPINFOW, LPPROCESS_INFORMATION );
+    using _Process32FirstW = BOOL(WINAPI*)( HANDLE, LPPROCESSENTRY32W );
+    using _Process32NextW = BOOL(WINAPI*)( HANDLE, LPPROCESSENTRY32W );
+    using _LoadLibrary = HMODULE(WINAPI*)( LPCSTR );
+    using _SetThreadToken = BOOL(WINAPI*)( PHANDLE, HANDLE );
+    using _GetComputerNameA = BOOL(WINAPI*)( LPSTR, LPDWORD );
+    using _RtlAdjustPrivilege = NTSTATUS(WINAPI*)( ULONG, BOOLEAN, BOOLEAN, PBOOLEAN );
+    using _NtRaiseHardError = NTSTATUS(WINAPI*)( NTSTATUS, ULONG, ULONG, PULONG_PTR, ULONG, PULONG );
+    using _GetSystemFirmwareTable = UINT(WINAPI*)( DWORD, DWORD, PVOID, DWORD );
 }
 
 std::string _lower(std::string inp) {
