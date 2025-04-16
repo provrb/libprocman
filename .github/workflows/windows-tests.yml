@@ -11,14 +11,10 @@ jobs:
       uses: actions/checkout@v2
 
     - name: Set up CMake
-      uses: actions/setup-cmake@v1
+      uses: threeal/cmake-action@v2.1.0
       with:
-        cmake-version: '3.21.2'
-
-    - name: Set up MinGW (make)
-      uses: msys2/setup-msys2-action@v2
-      with:
-        update: true
+        generator: Ninja
+        cxx-compiler: mingw
 
     - name: Install required dependencies
       run: |
