@@ -16,16 +16,7 @@ jobs:
         generator: Ninja
         cxx-compiler: C:/mingw64/bin/g++.exe 
 
-    - name: Install required dependencies
-      run: |
-        pacman -S --noconfirm mingw-w64-x86_64-toolchain make
-
-    - name: Configure and build with CMake
-      run:
-        mkdir build
-        cd build
-        cmake .. -G "MinGW Makefiles" -DCMAKE_C_COMPILER="C:/ProgramData/chocolatey/lib/mingw/tools/install/mingw64/bin/gcc.exe" -DCMAKE_CXX_COMPILER="C:/ProgramData/chocolatey/lib/mingw/tools/install/mingw64/bin/g++.exe"
-        cmake --build .
-
     - name: Run the executable
-      run: ./licprocman.exe
+      run: 
+        cd build
+        ./licprocman.exe
