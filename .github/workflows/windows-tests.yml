@@ -17,6 +17,6 @@ jobs:
         cxx-compiler: C:/mingw64/bin/g++.exe 
 
     - name: Run the executable
-      run: 
+      run: |
         cd build
         ./licprocman.exe
