@@ -4,6 +4,7 @@
 
 #include "procman.hpp" // ProcessManager
 #include <TlHelp32.h>
+#include <vector> // std::vector
 
 /* Function pointers to commonly used Nt API functions */
 extern "C" {
