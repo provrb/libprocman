@@ -5,26 +5,30 @@ on: [push]
 jobs:
   build-and-test:
     runs-on: windows-latest
-
+    
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
 
-    - name: Install dependencies (Make + MinGW)
+    - name: Install dependencies
       shell: pwsh
       run: |
-        choco install make mingw -y
-        echo "C:\ProgramData\chocolatey\lib\make\tools\install\bin" | Out-File -FilePath $env:GITHUB_PATH -Append
-        echo "C:\ProgramData\chocolatey\lib\mingw\tools\install\mingw64\bin" | Out-File -FilePath $env:GITHUB_PATH -Append
+        choco install cmake mingw -y
+        Add-Content $env:GITHUB_PATH "C:\Program Files\CMake\bin"
+        Add-Content $env:GITHUB_PATH "C:\ProgramData\chocolatey\lib\mingw\tools\install\mingw64\bin"
 
-    - name: Build with Make
+    - name: Set up MinGW environment
       shell: pwsh
       run: |
-        cd build
-        make
+        $env:PATH = "C:\msys64\mingw64\bin;" + $env:PATH
+        echo "MinGW path set"
+
+    - name: Build with CMake
+      shell: pwsh
+      run: |
+        cmake .. -G "MinGW Makefiles" -DCMAKE_C_COMPILER="C:/msys64/mingw64/bin/gcc.exe" -DCMAKE_CXX_COMPILER="C:/msys64/mingw64/bin/g++.exe"
+        cmake --build .
 
     - name: Run tests
-      shell: pwsh
       run: |
-        cd build
-        .\libprocman.exe
+        ./build/libprocman.exe
