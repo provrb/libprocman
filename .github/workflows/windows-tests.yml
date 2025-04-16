@@ -5,17 +5,17 @@ on: [push]
 jobs:
   build-and-test:
     runs-on: windows-latest
-    
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
 
-    - name: Install dependencies
+    - name: Install dependencies (Make + MinGW)
       shell: pwsh
       run: |
-        choco install cmake mingw -y
-        Add-Content $env:GITHUB_PATH "C:\Program Files\CMake\bin"
-        Add-Content $env:GITHUB_PATH "C:\ProgramData\chocolatey\lib\mingw\tools\install\mingw64\bin"
+        choco install make mingw -y
+        echo "C:\ProgramData\chocolatey\lib\make\tools\install\bin" | Out-File -FilePath $env:GITHUB_PATH -Append
+        echo "C:\ProgramData\chocolatey\lib\mingw\tools\install\mingw64\bin" | Out-File -FilePath $env:GITHUB_PATH -Append
 
     - name: Build with Make
       shell: pwsh
@@ -24,6 +24,7 @@ jobs:
         make
 
     - name: Run tests
+      shell: pwsh
       run: |
         cd build
-        ./libprocman.exe
+        .\libprocman.exe

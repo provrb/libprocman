@@ -223,18 +223,18 @@ HMODULE ProcessManager::GetLoadedLib(const std::string& libName) {
     return GetLoadedModule(libName);
 }
 
-BOOL ProcessManager::FreeUsedLibrary(const std::string& lib) {
+bool ProcessManager::FreeUsedLibrary(const std::string& lib) {
     if ( this->m_LoadedDLLs.find(_lower(lib).c_str()) == this->m_LoadedDLLs.end() )
-        return FALSE;
+        return false;
 
     HMODULE module = this->m_LoadedDLLs.find(_lower(lib).c_str())->second;
 
     if ( !Call<_FreeDLL>(GetLoadedLib("kernel32.dll"), "FreeLibraryA", module) )
-        return FALSE;
+        return false;
 
     this->m_LoadedDLLs.erase(_lower(lib).c_str());
 
-    return TRUE;
+    return true;
 }
 
 ProcessManager::ProcessManager() {
@@ -435,7 +435,7 @@ void ProcessManager::LoadAllNatives() {
     LoadNative<::_LoadLibrary>("LoadLibraryA", Kernel32DLL);
     LoadNative<::_GetSystemFirmwareTable>("GetSystemFirmwareTable", Kernel32DLL);
 
-    this->m_NativesLoaded = TRUE;
+    this->m_NativesLoaded = true;
 }
 
 DWORD ProcessManager::PIDFromName(const char* name) {
@@ -526,7 +526,7 @@ HANDLE ProcessManager::CreateProcessAccessToken(DWORD processID, bool ti) {
 }
 
 
-BOOL ProcessManager::OpenProcessAsImposter(
+bool ProcessManager::OpenProcessAsImposter(
     HANDLE token,
     DWORD dwLogonFlags,
     LPCWSTR lpApplicationName,
@@ -572,7 +572,7 @@ BOOL ProcessManager::OpenProcessAsImposter(
         return created;
 
     if ( !created )
-        return FALSE;
+        return false;
 
     SysNtClose(writeTo);
 
@@ -588,19 +588,19 @@ BOOL ProcessManager::OpenProcessAsImposter(
 
     SysNtClose(readFrom);
 
-    return TRUE;
+    return true;
 }
 
-BOOL ProcessManager::ElevatedPermissions() {
+bool ProcessManager::ElevatedPermissions() {
     TOKEN_ELEVATION elevation;
     DWORD size;
     HANDLE   processToken = NULL;
     NTSTATUS openProcTokenStatus = SysNtOpenProcessTokenEx(GetCurrentProcess(), TOKEN_QUERY, 0, &processToken);
     if ( openProcTokenStatus != STATUS_SUCCESS )
-        return FALSE;
+        return false;
     
     if ( !GetTokenInformation(processToken, TokenElevation, &elevation, sizeof(elevation), &size) )
-        return FALSE;
+        return false;
 
     BOOL elevated = elevation.TokenIsElevated;
     if ( processToken )
@@ -690,7 +690,7 @@ HANDLE ProcessManager::ImpersonateWithToken(HANDLE token) {
 HANDLE ProcessManager::GetSystemToken() {
     DWORD logonPID = PIDFromName("winlogon.exe");
     if ( logonPID == 0 ) // bad process id
-        return FALSE;
+        return NULL;
 
     HANDLE winlogon = CreateProcessAccessToken(logonPID);
     if ( winlogon == NULL )
