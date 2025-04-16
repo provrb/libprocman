@@ -27,8 +27,8 @@ A C++ library that grants access to advanced Windows internals, process manageme
 ## Building
 To build the tests executable:
 1. Open your terminal and change to the project directory
-2. Run the following command in the terminal. Make sure -DCMAKE_CXX_COMPILER is the path to your g++ compiler. **Note: Your g++ installation must support C++20!**
-    - `cmake -B build -G Ninja -DCMAKE_CXX_COMPILER=C:/mingw/bin/g++.exe`
+2. Run the following command in the terminal.  **Note: Your g++ installation must support C++20!**
+    - `cmake -B build -G Ninja`
 3. Build the executable with the following command:
     - `cmake --build build`
 4. Run the tests using:
