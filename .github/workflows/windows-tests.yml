@@ -3,43 +3,33 @@ name: Windows C++ Tests
 on: [push]
 
 jobs:
-  build-and-test:
-    runs-on: windows-latest
-    
+  build:
+    runs-on: windows-latest  # This will run on a Windows runner
+
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+    - name: Check out repository
+      uses: actions/checkout@v2
 
-    - name: Install dependencies
-      shell: pwsh
-      run: |
-        # Install CMake and MinGW
-        choco install cmake mingw -y
-        # Add CMake and MinGW paths to GITHUB_PATH to ensure they're available in the next steps
-        Add-Content $env:GITHUB_PATH "C:\Program Files\CMake\bin"
-        Add-Content $env:GITHUB_PATH "C:\ProgramData\chocolatey\lib\mingw\tools\install\mingw64\bin"
+    - name: Set up CMake
+      uses: actions/setup-cmake@v2
+      with:
+        cmake-version: '3.21.2'
 
-    - name: Set up MinGW environment
-      shell: pwsh
-      run: |
-        # Ensure MinGW and CMake are in the PATH for this step
-        $env:PATH = "C:\ProgramData\chocolatey\lib\mingw\tools\install\mingw64\bin;" + $env:PATH
-        # Check if the MinGW compiler and make are available
-        where mingw32-make
-        where gcc
-        where g++
+    - name: Set up MinGW (make)
+      uses: msys2/setup-msys2-action@v2
+      with:
+        update: true
 
-    - name: Build with CMake
-      shell: pwsh
+    - name: Install required dependencies
       run: |
-        # Create build directory
+        pacman -S --noconfirm mingw-w64-x86_64-toolchain make
+
+    - name: Configure and build with CMake
+      run:
         mkdir build
-        cd ./build
-        # Run cmake with the MinGW compilers
+        cd build
         cmake .. -G "MinGW Makefiles" -DCMAKE_C_COMPILER="C:/ProgramData/chocolatey/lib/mingw/tools/install/mingw64/bin/gcc.exe" -DCMAKE_CXX_COMPILER="C:/ProgramData/chocolatey/lib/mingw/tools/install/mingw64/bin/g++.exe"
         cmake --build .
 
-    - name: Run tests
-      run: |
-        # Run the built executable
-        ./build/libprocman.exe
+    - name: Run the executable
+      run: ./licprocman.exe
