@@ -305,13 +305,13 @@ public:
     bool 
     EnableTokenPrivilege(
         HANDLE token, 
-        const std::stirng& priv
+        const std::string& priv
     );
 
     bool 
     DisableTokenPrivilege(
         HANDLE token, 
-        const std::stirng& priv
+        const std::string& priv
     );
 
     bool
