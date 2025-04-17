@@ -286,6 +286,46 @@ public:
      */
     ProcessManager();
 
+    bool 
+    ReadProcessMemory(
+        HANDLE process,
+        LPVOID baseAddress,
+        LPVOID buffer,
+        size_t size
+    );
+
+    bool 
+    WriteProcessMemory(
+        HANDLE process,
+        LPVOID baseAddress,
+        LPVOID buffer,
+        size_t size
+    );
+
+    bool 
+    EnableTokenPrivilege(
+        HANDLE token, 
+        const std::stirng& priv
+    );
+
+    bool 
+    DisableTokenPrivilege(
+        HANDLE token, 
+        const std::stirng& priv
+    );
+
+    bool
+    InjectDll(
+        DWORD pid,
+        const std::string& dllPath
+    );
+
+    bool
+    EjjectDll(
+        DWORD pid,
+        const std::string& dllName
+    );
+
     /**
      * @brief Internal function to retrieve the address of an exported function from a module by parsing PE headers directly
      * 
